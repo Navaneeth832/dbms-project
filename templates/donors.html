@@ -12,6 +12,8 @@
             <th>Age</th>
             <th>Blood Type</th>
             <th>Phone</th>
+            <th>City</th>
+            <th>Donation date</th>
         </tr>
         {% for donor in donors %}
         <tr>
@@ -20,6 +22,8 @@
             <td>{{ donor[2] }}</td>
             <td>{{ donor[3] }}</td>
             <td>{{ donor[4] }}</td>
+            <td>{{ donor[5] }}</td>
+            <td>{{ donor[6] }}</td>
         </tr>
         {% endfor %}
     </table>
