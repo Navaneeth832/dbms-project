@@ -27,5 +27,8 @@
         </tr>
         {% endfor %}
     </table>
+    {% if message %}
+    <p style="color: green;">{{ message }}</p>
+    {% endif %}
 </body>
 </html>

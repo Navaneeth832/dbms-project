@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Hospitals</title>
+</head>
+<body>
+    <h2>Available Hospitals for {{ blood_group }}</h2>
+    <table border="1">
+        <tr>
+            <th>Hospital ID</th>
+            <th>Hospital Name</th>
+            <th>City</th>
+            <th>Contact</th>
+            <th>Available Units</th>
+        </tr>
+        {% for av in available_hospitals %}
+        <tr>
+            <td>{{ av[0] }}</td>
+            <td>{{ av[1] }}</td>
+            <td>{{ av[2] }}</td>
+            <td>{{ av[3] }}</td>
+            <td>{{ av[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br><br>
+
+    <form method="POST">
+        <label for="hospital_id">Enter Hospital ID to receive the blood units:</label>
+        <input type="text" id="hospital_id" name="hospital_id" required>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if message %}
+    <p style="color: green;">{{ message }}</p>
+    {% endif %}
+</body>
+</html>

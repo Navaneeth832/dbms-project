@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Bank Requests</title>
+</head>
+<body>
+    <h2>Blood Bank Requests</h2>
+    <table border="1">
+        <tr>
+            <th>Hospital_id</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Contact</th>
+            <th>Blood group</th>
+            <th>Units Required</th>
+            <th>Request date</th>
+        </tr>
+        {% for r in requests %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+            <td>{{ r[5] }}</td>
+            <td>{{ r[6] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

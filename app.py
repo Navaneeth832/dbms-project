@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,flash
 import mysql.connector
 
 app = Flask(__name__)
@@ -51,9 +51,16 @@ def registerdonor():
         query = "INSERT INTO Donor (name, age, blood_group, contact, city, last_donation_date) VALUES (%s, %s, %s, %s, %s, %s)"
         cursor.execute(query, (name, age, blood_group, contact, city, date))
         db.commit()
-        
-        return redirect(url_for('donors'))  # Redirect to donor list page
-
+        query=f"UPDATE bloodbank AS b1 JOIN (SELECT hospital_id FROM bloodbank ORDER BY `{blood_group}` LIMIT 1) AS b2 ON b1.hospital_id = b2.hospital_id SET b1.`{blood_group}` = b1.`{blood_group}` + 1;"
+        cursor.execute(query)
+        db.commit()
+        cursor.execute(f"select hospital_id FROM BLOODBANK ORDER BY `{blood_group}` LIMIT 1;")
+        id=cursor.fetchone()
+        id=id[0]
+        cursor.execute(f"select name from hospital where hospital_id={id};")
+        hos=cursor.fetchone()
+        message=f"Your blood has been donated to blood bank of {hos}" # Store the message temporarily
+        return redirect(url_for('donors',message=message))
     return render_template('registerdonor.html')
 
 @app.route('/registerasreciever', methods=['GET', 'POST'])
@@ -62,6 +69,7 @@ def registerpatient():
         print(request.form)  # Debugging line to check received data
         
         # Safely retrieve form data
+        patientid = request.form.get('patientid', '').strip()
         name = request.form.get('name', '').strip()
         age = request.form.get('age', '').strip()
         blood_group = request.form.get('blood_group', '').strip().upper()
@@ -81,28 +89,70 @@ def registerpatient():
         if blood_group not in valid_blood_groups:
             return "Invalid blood group! Choose a valid blood type.", 400
         
-        query = "INSERT INTO Patients (name, age, blood_group, hospital_id, units_needed, request_date) VALUES (%s, %s, %s, %s, %s, %s)"
-        cursor.execute(query, (name, age, blood_group, hid, units, date))
+        query = "INSERT INTO Patients (patient_id,name, age, blood_group, hospital_id, units_needed, request_date) VALUES (%s,%s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (patientid,name, age, blood_group, hid, units, date))
         db.commit()
+        return redirect(url_for('available', blood_group=blood_group,units=units,patientid=patientid))
         
-        return redirect(url_for('patients'))  # Redirect to donor list page
-
     return render_template('registerpatient.html')
-
-
 # View Donors
 @app.route('/donors')
 def donors():
+    message = request.args.get('message', '')
     cursor.execute("SELECT * FROM Donor")
     donors_list = cursor.fetchall()
-    return render_template('donors.html', donors=donors_list)
+    return render_template('donors.html', donors=donors_list,message=message)
 @app.route('/patients')
 def patients():
     cursor.execute("SELECT * FROM Patients")
     donors_list = cursor.fetchall()
     return render_template('patients.html', donors=donors_list)
+@app.route('/available', methods=['GET', 'POST'])
+def available():
+    blood_group = request.args.get('blood_group', '').strip().upper()
+    patientid = request.args.get('patientid', '').strip().upper()
+    print(f"Extracted Blood Group: {blood_group}")
+    units = request.args.get('units', '').strip().upper()
+    # Validate blood group
+    valid_blood_groups = {'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'}
+    if blood_group not in valid_blood_groups:
+        return "Invalid blood group!", 400
 
-# Blood Request
+    # Fetch available hospitals
+    query = f"SELECT b.hospital_id, h.Name, h.City, h.Contact, `{blood_group}` FROM hospital h, bloodbank b WHERE b.hospital_id = h.hospital_id and `{blood_group}`>{units} ORDER BY `{blood_group}` DESC;"
+    cursor.execute(query)
+    available_hospitals = cursor.fetchall()
+    # Process form submission
+    message = None
+    if request.method == 'POST':
+        hospital_id = request.form.get('hospital_id', '').strip()
+        if available_hospitals:
+            if hospital_id:
+                message = f"You have recieved {units} units from Hospital ID {hospital_id}."
+            query=f"update bloodbank set `{blood_group}`=`{blood_group}`-{units} where hospital_id={hospital_id};"
+            cursor.execute(query)
+            db.commit()
+            cursor.execute(f"update patients set recieved='Yes' where patient_id={patientid};" )
+            db.commit()
+        else:
+            message=f"There are no hospitals available for {units} units of blood group {blood_group}. You have sent a request."
+            cursor.execute(f"update patients set recieved='NO' where patient_id={patientid};" )
+            db.commit()
+    return render_template('availablehospitals.html', blood_group=blood_group, available_hospitals=available_hospitals, message=message)
+
+@app.route('/hospitallogin',methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        hospital_id = request.form['hospital_id']
+        password = request.form['password']
+        cursor.execute("SELECT COUNT(*) FROM passwords WHERE hospital_id=%s AND password=%s;", (hospital_id, password))
+        list=cursor.fetchall()
+        if(list[0][0]==1):
+            print("You have logged in")
+        else:
+            print("Sorry try again")
+        return '<p>{{list}}</p>'
+    return render_template('hospitallogin.html')
 @app.route('/request_blood', methods=['GET', 'POST'])
 def request_blood():
     if request.method == 'POST':
@@ -123,7 +173,7 @@ def request_blood():
 @app.route('/blood_requests')
 def blood_requests():
     cursor.execute("""
-        SELECT BloodRequest.request_id, Hospital.name, BloodRequest.blood_group, BloodRequest.units_required, BloodRequest.request_date 
+        SELECT BloodRequest.request_id, Hospital.name, BloodRequest.blood_group, BloodRequest.units_required, BloodRequest.request_date, Bloodrequest.units_required, Bloodrequest.request_date 
         FROM BloodRequest 
         JOIN Hospital ON BloodRequest.hospital_id = Hospital.hospital_id
     """)

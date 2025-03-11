@@ -6,6 +6,8 @@
 <body>
     <h2>Blood Request</h2>
     <form action="{{ url_for('registerpatient') }}" method="POST">
+        <label for="patientid">Patient id:</label>
+        <input type="patientid" name="patientid" required><br>
         <label for="name">Name:</label>
         <input type="text" name="name" required><br>
 
