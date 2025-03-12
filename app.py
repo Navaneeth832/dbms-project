@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for,flash
+from flask import Flask, render_template, request, redirect, url_for,session
 import mysql.connector
-
+import os
 app = Flask(__name__)
-
+app.secret_key=os.urandom(24)
 # Database Configuration
 db = mysql.connector.connect(
     host="localhost",
@@ -15,9 +15,33 @@ cursor = db.cursor()
 # Home Page
 @app.route('/')
 def home():
+    return render_template('main.html')
+
+@app.route('/index')
+def index():
     return render_template('index.html')
 
-# Donor Registration
+@app.route('/index2')
+def hospital_dashboard():
+    if 'hospital_id' not in session:
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+
+    hospital_id = session['hospital_id']
+
+    # Fetch blood bank data only for the logged-in hospital
+    cursor.execute("SELECT * FROM BloodBank WHERE hospital_id = %s", (hospital_id,))
+    blood_data = cursor.fetchall()
+
+    # Fetch blood requests only for the logged-in hospital
+    cursor.execute("""
+        SELECT request_id, blood_group, units_required, request_date 
+        FROM BloodRequest WHERE hospital_id = %s
+    """, (hospital_id,))
+    requests_list = cursor.fetchall()
+
+    return render_template('index2.html', blood_data=blood_data, requests=requests_list)
+
+
 @app.route('/registerasdonor', methods=['GET', 'POST'])
 def registerdonor():
     if request.method == 'POST':
@@ -104,7 +128,7 @@ def donors():
     return render_template('donors.html', donors=donors_list,message=message)
 @app.route('/patients')
 def patients():
-    cursor.execute("SELECT * FROM Patients")
+    cursor.execute("SELECT * FROM Patients WHERE RECIEVED='NO';")
     donors_list = cursor.fetchall()
     return render_template('patients.html', donors=donors_list)
 @app.route('/available', methods=['GET', 'POST'])
@@ -145,14 +169,23 @@ def login():
     if request.method == 'POST':
         hospital_id = request.form['hospital_id']
         password = request.form['password']
+
         cursor.execute("SELECT COUNT(*) FROM passwords WHERE hospital_id=%s AND password=%s;", (hospital_id, password))
-        list=cursor.fetchall()
-        if(list[0][0]==1):
-            print("You have logged in")
+        result = cursor.fetchone()
+
+        if result[0] == 1:
+            session['hospital_id'] = hospital_id  # Store hospital ID in session
+            return redirect(url_for('hospital_dashboard'))
         else:
-            print("Sorry try again")
-        return '<p>{{list}}</p>'
+            return "Invalid Credentials", 401
+
     return render_template('hospitallogin.html')
+@app.route('/logout')
+def logout():
+    session.pop('hospital_id', None)  # Clear session
+    return redirect(url_for('login'))  # Redirect to login page
+
+
 @app.route('/request_blood', methods=['GET', 'POST'])
 def request_blood():
     if request.method == 'POST':
@@ -179,6 +212,15 @@ def blood_requests():
     """)
     requests_list = cursor.fetchall()
     return render_template('blood_requests.html', requests=requests_list)
-
+@app.route('/hospitals')
+def hospitals():
+    cursor.execute("SELECT * FROM HOSPITAL;")
+    hospitals=cursor.fetchall()
+    return render_template('hospitals.html',hospitals=hospitals)
+@app.route('/bloodbank')
+def bloodbank():
+    cursor.execute("SELECT * FROM bloodbank;")
+    hospitals=cursor.fetchall()
+    return render_template('bloodbank.html',hospitals=hospitals)
 if __name__ == '__main__':
     app.run(debug=True)

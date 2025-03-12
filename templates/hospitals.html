@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HOSPITALS</title>
+</head>
+<body>
+    <h2>HOSPITALS</h2>
+    <table border="1">
+        <tr> 
+            <th>Hospital_id</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Contact</th>
+        </tr>
+        {% for r in hospitals %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+            <td>{{ r[5] }}</td>
+            <td>{{ r[6] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px #aaa;
+            display: inline-block;
+            margin-top: 50px;
+        }
+        h1 {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        button {
+            background-color: red;
+            color: white;
+            padding: 15px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            width: 250px;
+        }
+        button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Hospital Dashboard</h1>
+        <p>Welcome, Hospital {{ session['hospital_id'] }}!</p>
+
+        <h2>Blood Bank Stock</h2>
+        {% if blood_data %}
+        <table>
+            <tr>
+                <th>A+</th>
+                <th>A-</th>
+                <th>B+</th>
+                <th>B-</th>
+                <th>AB+</th>
+                <th>AB-</th>
+                <th>O+</th>
+                <th>O-</th>
+            </tr>
+            {% for row in blood_data %}
+            <tr>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[7] }}</td>
+                <td>{{ row[8] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No blood data available.</p>
+        {% endif %}
+
+        <h2>Blood Requests</h2>
+        {% if requests %}
+        <table>
+            <tr>
+                <th>Request ID</th>
+                <th>Blood Group</th>
+                <th>Units Required</th>
+                <th>Request Date</th>
+            </tr>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request[0] }}</td>
+                <td>{{ request[1] }}</td>
+                <td>{{ request[2] }}</td>
+                <td>{{ request[3] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No blood requests.</p>
+        {% endif %}
+
+        <br><br>
+        <a href="{{ url_for('logout') }}"><button style="background-color: gray;">Logout</button></a>
+    </div>
+
+</body>
+</html>

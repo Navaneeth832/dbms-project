@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BLOODBANK</title>
+</head>
+<body>
+    <h2>BLOODBANK</h2>
+    <table border="1">
+        <tr> 
+            <th>Hospital_id</th>
+            <th>A+(in units)</th>
+            <th>A-(in units)</th>
+            <th>B+(in units)</th>
+            <th>B-(in units)</th>
+            <th>AB+(in units)</th>
+            <th>AB-(in units)</th>
+            <th>O+(in units)</th>
+            <th>O-(in units)</th>
+        </tr>
+        {% for r in hospitals %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+            <td>{{ r[5] }}</td>
+            <td>{{ r[6] }}</td>
+            <td>{{ r[7] }}</td>
+            <td>{{ r[8] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
