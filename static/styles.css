@@ -1,0 +1,75 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Heading Style */
+h2 {
+    color: #d32f2f;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+table {
+    width: 80%;
+    margin: auto;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background-color: #d32f2f;
+    color: white;
+    text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1c4c4;
+    transition: 0.3s;
+}
+
+/* Form Styling */
+form {
+    margin-top: 20px;
+}
+
+input[type="text"], input[type="submit"] {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #d32f2f;
+}
+
+input[type="submit"] {
+    background-color: #d32f2f;
+    color: white;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #b71c1c;
+}
+
+/* Success Message */
+p {
+    font-size: 16px;
+    font-weight: bold;
+}

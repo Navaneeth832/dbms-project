@@ -87,7 +87,7 @@ def registerdonor():
         return redirect(url_for('donors',message=message))
     return render_template('registerdonor.html')
 
-@app.route('/registerasreciever', methods=['GET', 'POST'])
+@app.route('/registeraspatient', methods=['GET', 'POST'])
 def registerpatient():
     if request.method == 'POST':
         print(request.form)  # Debugging line to check received data
