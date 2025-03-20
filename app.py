@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for,session
 import mysql.connector
 import os
 app = Flask(__name__)
-app.secret_key=os.urandom(24)
+app.secret_key="hello123"
 # Database Configuration
 db = mysql.connector.connect(
     host="localhost",
